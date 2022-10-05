@@ -1,0 +1,6 @@
+[gitea]
+gitea.thezengarden.net  ansible_host=10.10.10.109
+
+[gitea:vars]
+ansible_user=root
+
