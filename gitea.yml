@@ -87,4 +87,11 @@
         daemon_reload: yes
 
 
+    - name: Start Gitea
+      service:
+        name    : gitea
+        state   : started
+        enabled : yes
+
+
 ...
