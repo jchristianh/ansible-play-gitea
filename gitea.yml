@@ -6,7 +6,7 @@
 
 
   vars:
-    __gitea_version : 1.17.3
+    __gitea_version : 1.18.1
     __gitea_arch    : amd64
     __gitea_binary  : "https://dl.gitea.io/gitea/{{ __gitea_version }}/\
                         gitea-{{ __gitea_version }}-linux-{{ __gitea_arch }}"
@@ -30,6 +30,11 @@
       ignore_errors : yes
       changed_when  : no
       register      : r_check_gitea
+
+
+    - name: Debug r_check_gitea
+      debug:
+        var: r_check_gitea.stdout
 
 
     - name: Gitea presence and version verification
