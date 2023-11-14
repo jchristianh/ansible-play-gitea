@@ -32,21 +32,20 @@
       register      : r_check_gitea
 
 
-    - name: Gitea presence and version verification
-      ansible.builtin.debug :
-        msg : "Gitea binary not found or version mismatch."
+    - name: Fetch Gitea binary and notify user
       when  :
         - (r_check_gitea.rc == 1 or r_check_gitea.stdout is not search(__gitea_version))
+      block:
+        - name: Gitea binary not found or version mismatch
+          ansible.builtin.debug :
+            msg : "Gitea binary not found or version mismatch."
 
-
-    - name: "Fetch Gitea {{ __gitea_version }}"
-      ansible.builtin.get_url :
-        url   : "{{ __gitea_binary }}"
-        dest  : /usr/local/bin/gitea
-        mode  : "0755"
-      notify  : Restart Gitea
-      when    :
-        - (r_check_gitea.rc == 1 or r_check_gitea.stdout is not search(__gitea_version))
+        - name: "Fetch Gitea {{ __gitea_version }}"
+          ansible.builtin.get_url :
+            url   : "{{ __gitea_binary }}"
+            dest  : /usr/local/bin/gitea
+            mode  : "0755"
+          notify  : Restart Gitea
 
 
     - name: Create Gitea user
