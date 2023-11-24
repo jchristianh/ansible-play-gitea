@@ -1,6 +1,6 @@
 ---
 - name: Deploy Gitea
-  hosts: gitea
+  hosts: all
   become: true
   gather_facts: false
 
