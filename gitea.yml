@@ -79,7 +79,7 @@
 
 
     - name: Manage Gitea service
-      when: ansible_virtualization_type != "container"
+      when: ansible_virtualization_type != "docker"
       block:
         - name: Deploy unit file for Gitea
           ansible.builtin.template:
@@ -105,7 +105,7 @@
       ansible.builtin.service:
         name  : gitea
         state : restarted
-      when: ansible_virtualization_type != "container"
+      when: ansible_virtualization_type != "docker"
 
 
 ...
