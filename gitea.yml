@@ -2,7 +2,7 @@
 - name: Deploy Gitea
   hosts: all
   become: true
-  gather_facts: false
+  gather_facts: true
 
 
   vars:
@@ -73,25 +73,26 @@
         - /etc/gitea
 
 
-    - name: Deploy unit file for Gitea
-      ansible.builtin.template:
-        src   : templates/gitea.service.j2
-        dest  : /etc/systemd/system/gitea.service
-        owner : root
-        group : root
-        mode  : "0644"
+    - name: Manage Gitea service
+      when: ansible_virtualization_type != "container"
+      block:
+        - name: Deploy unit file for Gitea
+          ansible.builtin.template:
+            src   : templates/gitea.service.j2
+            dest  : /etc/systemd/system/gitea.service
+            owner : root
+            group : root
+            mode  : "0644"
 
+        - name: Reload Systemd
+          ansible.builtin.systemd:
+            daemon_reload: true
 
-    - name: Reload Systemd
-      ansible.builtin.systemd:
-        daemon_reload: true
-
-
-    - name: Start Gitea
-      ansible.builtin.service:
-        name    : gitea
-        state   : started
-        enabled : true
+        - name: Start Gitea
+          ansible.builtin.service:
+            name    : gitea
+            state   : started
+            enabled : true
 
 
   handlers:
@@ -99,6 +100,7 @@
       ansible.builtin.service:
         name  : gitea
         state : restarted
+      when: ansible_virtualization_type != "container"
 
 
 ...
