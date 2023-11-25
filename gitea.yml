@@ -73,6 +73,11 @@
         - /etc/gitea
 
 
+    - name: Debug ansible_virtualization_type
+      ansible.builtin.debug:
+        var: ansible_virtualization_type
+
+
     - name: Manage Gitea service
       when: ansible_virtualization_type != "container"
       block:
