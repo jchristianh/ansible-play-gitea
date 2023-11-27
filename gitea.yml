@@ -73,13 +73,9 @@
         - /etc/gitea
 
 
-    - name: Debug ansible_virtualization_type
-      ansible.builtin.debug:
-        var: ansible_virtualization_type
-
-
     - name: Manage Gitea service
-      when: ansible_virtualization_type != "docker"
+      when:
+        - ansible_virtualization_type | select('match', '(?:podman|docker|container)')
       block:
         - name: Deploy unit file for Gitea
           ansible.builtin.template:
@@ -105,7 +101,8 @@
       ansible.builtin.service:
         name  : gitea
         state : restarted
-      when: ansible_virtualization_type != "docker"
+      when:
+        - ansible_virtualization_type | select('match', '(?:podman|docker|container)')
 
 
 ...

@@ -1,3 +1,4 @@
 facts.d/
 hosts
 collections/
+.vscode
