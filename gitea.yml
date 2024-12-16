@@ -6,7 +6,7 @@
 
 
   vars:
-    __gitea_version : 1.22.4
+    __gitea_version : 1.22.5
     __gitea_arch    : amd64
     __gitea_binary  : "https://dl.gitea.io/gitea/{{ __gitea_version }}/\
                         gitea-{{ __gitea_version }}-linux-{{ __gitea_arch }}"
