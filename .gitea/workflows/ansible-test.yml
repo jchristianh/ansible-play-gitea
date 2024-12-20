@@ -3,7 +3,7 @@ run-name: ${{ gitea.actor }} is running Ansible Code Pipeline
 on:
   push:
     branches:
-      - testing
+      - development
 
 jobs:
   Ansible-Development-Pipeline:
