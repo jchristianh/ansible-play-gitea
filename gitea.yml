@@ -6,78 +6,72 @@
 
 
   vars:
-    __gitea_version : 1.22.5
-    __gitea_arch    : amd64
-    __gitea_binary  : "https://dl.gitea.io/gitea/{{ __gitea_version }}/\
+    __gitea_version: 1.22.5
+    __gitea_arch: amd64
+    __gitea_binary: "https://dl.gitea.io/gitea/{{ __gitea_version }}/\
                         gitea-{{ __gitea_version }}-linux-{{ __gitea_arch }}"
 
     __gitea_user:
-      name  : gitea
-      gecos : Git with a cup of tea
-      shell : /bin/bash
-      home  : /home/gitea
+      name: gitea
+      gecos: Git with a cup of tea
+      shell: /bin/bash
+      home: /home/gitea
 
 
   tasks:
     - name: Install Git
       ansible.builtin.package:
-        name  : git
-        state : present
-
+        name: git
+        state: present
 
     - name: Check if Gitea is present and is correct version
-      ansible.builtin.command       : /usr/local/bin/gitea --version
-      ignore_errors : true
-      changed_when  : false
-      register      : r_check_gitea
-
+      ansible.builtin.command: /usr/local/bin/gitea --version
+      ignore_errors: true
+      changed_when: false
+      register: r_check_gitea
 
     - name: Fetch Gitea binary and notify user
       when  :
         - (r_check_gitea.rc == 1 or r_check_gitea.stdout is not search(__gitea_version))
       block:
         - name: Gitea binary not found or version mismatch
-          ansible.builtin.debug :
-            msg : "Gitea binary not found or version mismatch."
+          ansible.builtin.debug:
+            msg: "Gitea binary not found or version mismatch."
 
         - name: "Fetch Gitea {{ __gitea_version }}"
           ansible.builtin.get_url :
-            url   : "{{ __gitea_binary }}"
-            dest  : /usr/local/bin/gitea
-            mode  : "0755"
-          notify  : Restart Gitea
-
+            url: "{{ __gitea_binary }}"
+            dest: /usr/local/bin/gitea
+            mode: "0755"
+          notify: Restart Gitea
 
     - name: Create Gitea user
       ansible.builtin.user:
-        name        : "{{ __gitea_user.name }}"
-        comment     : "{{ __gitea_user.gecos }}"
-        shell       : "{{ __gitea_user.shell }}"
-        home        : "{{ __gitea_user.home }}"
-        create_home : true
-        state       : present
-
+        name: "{{ __gitea_user.name }}"
+        comment: "{{ __gitea_user.gecos }}"
+        shell: "{{ __gitea_user.shell }}"
+        home: "{{ __gitea_user.home }}"
+        create_home: true
+        state: present
 
     - name: Create required directories
       ansible.builtin.file:
-        path    : "{{ item }}"
-        state   : directory
-        recurse : true
-        owner   : "{{ __gitea_user.name }}"
-        group   : "{{ __gitea_user.name }}"
-        mode    : "0750"
+        path: "{{ item }}"
+        state: directory
+        recurse: true
+        owner: "{{ __gitea_user.name }}"
+        group: "{{ __gitea_user.name }}"
+        mode: "0750"
       loop:
         - /var/lib/gitea/custom
         - /var/lib/gitea/data
         - /var/lib/gitea/log
         - /etc/gitea
 
-
     - name: Debug ansible_virtualization_type
       ansible.builtin.debug:
         var: ansible_virtualization_type
         verbosity: 1
-
 
     - name: Manage Gitea service
       when:
@@ -85,11 +79,11 @@
       block:
         - name: Deploy unit file for Gitea
           ansible.builtin.template:
-            src   : templates/gitea.service.j2
-            dest  : /etc/systemd/system/gitea.service
-            owner : root
-            group : root
-            mode  : "0644"
+            src: templates/gitea.service.j2
+            dest: /etc/systemd/system/gitea.service
+            owner: root
+            group: root
+            mode: "0644"
 
         - name: Reload Systemd
           ansible.builtin.systemd:
@@ -97,16 +91,16 @@
 
         - name: Start Gitea
           ansible.builtin.service:
-            name    : gitea
-            state   : started
-            enabled : true
+            name: gitea
+            state: started
+            enabled: true
 
 
   handlers:
     - name: Restart Gitea
       ansible.builtin.service:
-        name  : gitea
-        state : restarted
+        name: gitea
+        state: restarted
       when:
         - not ansible_virtualization_type | regex_search('(podman|docker|container)')
 

@@ -1,0 +1,39 @@
+name: Ansible Code Pipeline
+run-name: ${{ gitea.actor }} is running Ansible Code Pipeline
+on:
+  push:
+    branches:
+      - testing
+
+jobs:
+  Ansible-Development-Pipeline:
+    strategy:
+      matrix:
+        os: [ ansible-dev-centos9, ansible-dev-fedora39, ansible-dev-debian12 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Ansible Environment Verify
+        run: |
+          whoami
+          . ./.ci.env
+          env
+          git log -1
+          ansible --version
+          ansible-lint --version
+
+      - name: Install Ansible Galaxy Dependencies
+        run: |
+          ansible-galaxy install -r requirements.yml
+
+      - name: Run Ansible-Lint
+        run: |
+          . ./.ci.env
+          ansible-lint --offline $ANSIBLE_LINT_EXCLUSION
+
+      - name: Run Ansible-Playbook
+        run: |
+          . ./.ci.env
+          ansible-playbook -v $ANSIBLE_INVENTORY $ANSIBLE_PLAYBOOK
